@@ -54,29 +54,32 @@ class Debug(object):
         print(f"api secret: {self.dlcscommand.secret[0:3]}****")
         print(f"customer: {self.dlcscommand.customer}")
         print(f"space: {self.dlcscommand.space}")
+        print(f"origin: {self.dlcscommand.origin}")
 
 
 class Ingest(object):
+    """Operations related to ingesting assets"""
 
     def __init__(self, dlcscommand):
         self.dlcscommand = dlcscommand
         self.ops = Operations(self.dlcscommand)
 
-    def image(self, image_id, image_location, **metadata):
+    def image(self, image_id, image_location, metadata):
         if not image_location.startswith("http"):
             print("Only for remote origins so far")
             raise NotImplementedError
 
-        batch = self.ops.ingest_from_origin(image_id, image_location, metadata)
+        batch = self.ops.ingest_from_origin(image_id, image_location, **metadata)
         print(batch)
         print()
         print("done.")
 
     def folder(self, dir, profile='Default', increment_number_field="n1", **metadata):
-        self.ops.ingest_folder(dir, increment_number_field, profile)
+        self.ops.ingest_folder(dir, increment_number_field, profile, **metadata)
 
 
 class Pipeline(object):
+    """Pipeline used my Fire to group all request"""
 
     def __init__(self):
         command = DlcsCommand()
@@ -86,6 +89,7 @@ class Pipeline(object):
 
 
 class Customer(object):
+    """Operations related to customer"""
 
     def __init__(self, dlcscommand):
         self.dlcscommand = dlcscommand
@@ -111,7 +115,7 @@ class Customer(object):
     def create_space(self, name):
         """
         Create space for customer specified in settings
-        :param name:
+        :param name: name to use for space
         :return:
         """
         self.ops.create_space(name)

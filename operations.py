@@ -57,6 +57,7 @@ class Operations(object):
             key = f'{key_prefix}{filename}'
             try:
                 response = s3.upload_file(full_path, bucket, key)
+                # TODO - assumes eu-west-1
                 public_url = f'https://{bucket}.s3-eu-west-1.amazonaws.com/{key}'
                 uploaded.append(public_url)
                 print(f'uploaded: {public_url}..')
@@ -68,7 +69,6 @@ class Operations(object):
             return
 
         queue = Queue(uploaded, self.dlcscommand.space, increment_number_field, "I", **metadata)
-
         url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/queue'
         response = post(url, json=queue.to_json_dict(), auth=self._get_auth())
         response.raise_for_status()

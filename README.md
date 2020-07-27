@@ -1,4 +1,5 @@
 # dlcs-cli
+
 Command line interface for dlcs
 
 This is an experimental work in progress and only does one useful thing at the moment.
@@ -18,9 +19,10 @@ python dlcs.py ingest-image --image-id horse05 --image-location https://tomcrane
 You need to specify a `settings.py` file containing default values in the root of the repository. Sample file shown below:
 
 ```py
-DLCS_ENTRY = '' # the route of the API to call (e.g. https://api.dlcs.io)
+DLCS_ENTRY = 'https://api.dlcs' # the route of the API to call (e.g. https://api.dlcs.io)
 DLCS_API_KEY = 'api-key' # username for basic auth
 DLCS_SECRET = 'my-super-secret' # password for basic auth
 DLCS_CUSTOMER_ID = 1 # customer to do operations on
 DLCS_SPACE = 1 # space to do operations on
+DLCS_ORIGIN = 'storage-origin' # bucket used to upload to (optional)
 ```

@@ -1,6 +1,12 @@
+from botocore.exceptions import ClientError
+
 from client.batch import Batch
 from client.image import Image, ImageCollection
+from client.queue import Queue
+
 from requests import post, auth
+import boto3
+import os
 
 
 class Operations(object):
@@ -27,17 +33,48 @@ class Operations(object):
         batch = self.register_collection(coll)
         return batch
 
-    # def ingest_folder(path_to_folder, increment_number_field):
-    #    pass
-
     def register_collection(self, image_collection):
-        authorisation = auth.HTTPBasicAuth(self.dlcscommand.key, self.dlcscommand.secret)
         url = self.dlcscommand.api + 'customers/' + str(self.dlcscommand.customer) + '/queue'
         body = image_collection.to_json_dict()
-        response = post(url, json=body, auth=authorisation)
+        response = post(url, json=body, auth=self._get_auth())
         batch = Batch(response.json())
 
         return batch
+
+    def ingest_folder(self, dir, increment_number_field, profile, **metadata):
+        if self.dlcscommand.origin == '':
+            raise Exception('No origin set')
+
+        session = boto3.Session(profile_name=profile)
+        s3 = session.client('s3')
+        key_prefix = f'{self.dlcscommand.customer}/{self.dlcscommand.space}/'
+        bucket = self.dlcscommand.origin
+
+        uploaded = [];
+
+        for filename in os.listdir(dir):
+            full_path = os.path.join(dir, filename)
+            key = f'{key_prefix}{filename}'
+            try:
+                response = s3.upload_file(full_path, bucket, key)
+                public_url = f'https://{bucket}.s3-eu-west-1.amazonaws.com/{key}'
+                uploaded.append(public_url)
+                print(f'uploaded: {public_url}..')
+            except ClientError as e:
+                print(f'failed to upload {filename}')
+
+        if not uploaded:
+            print("Nothing uploaded. Nothing to do.")
+            return
+
+        queue = Queue(uploaded, self.dlcscommand.space, increment_number_field, "I", **metadata)
+
+        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/queue'
+        response = post(url, json=queue.to_json_dict(), auth=self._get_auth())
+        response.raise_for_status()
+        print(f"Created queue")
+        print(response.status_code)
+        print(response.json())
 
     def create_customer(self, name: str, display_name: str):
         """

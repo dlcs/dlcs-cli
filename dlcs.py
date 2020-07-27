@@ -16,6 +16,9 @@ class DlcsCommand(object):
         self.secret = secret
         self.customer = customer
         self.space = space
+
+        self.origin = '' if not hasattr(settings, 'DLCS_ORIGIN') else settings.DLCS_ORIGIN
+
         if not self.api.endswith("/"):
             self.api += "/"
 
@@ -57,22 +60,20 @@ class Ingest(object):
 
     def __init__(self, dlcscommand):
         self.dlcscommand = dlcscommand
+        self.ops = Operations(self.dlcscommand)
 
     def image(self, image_id, image_location, **metadata):
         if not image_location.startswith("http"):
             print("Only for remote origins so far")
             raise NotImplementedError
-        ops = Operations(self.dlcscommand, metadata)
-        batch = ops.ingest_from_origin(image_id, image_location)
+
+        batch = self.ops.ingest_from_origin(image_id, image_location, metadata)
         print(batch)
         print()
         print("done.")
 
-    def folder(self, path_to_folder, increment_number_field="n1", **metadata):
-        print("Can't yet ingest a local folder")
-        raise NotImplementedError
-        # ops = Operations(self, metadata)
-        # ops.ingest_folder(path_to_folder, increment_number_field)
+    def folder(self, dir, profile='Default', increment_number_field="n1", **metadata):
+        self.ops.ingest_folder(dir, increment_number_field, profile)
 
 
 class Pipeline(object):

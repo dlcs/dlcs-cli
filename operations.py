@@ -72,6 +72,7 @@ class Operations(object):
         queue = Queue(uploaded, self.dlcscommand.space, increment_number_field, "I", **metadata)
         url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/queue'
         response = post(url, json=queue.to_json_dict(), auth=self._get_auth())
+        pprint.pprint(queue.to_json_dict())
         response.raise_for_status()
         batch = Batch(response.json())
         return batch

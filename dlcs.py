@@ -82,7 +82,7 @@ class Ingest(object):
 
 
 class Pipeline(object):
-    """Pipeline used my Fire to group all request"""
+    """Pipeline used by Python Fire to group all request"""
 
     def __init__(self):
         command = DlcsCommand()

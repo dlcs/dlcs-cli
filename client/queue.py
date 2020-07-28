@@ -3,7 +3,7 @@ from client.image import JSONLDBaseWithHydraContext, Image
 
 class Queue(JSONLDBaseWithHydraContext):
 
-    def __init__(self, origins: list, space, increment_number_field, family='I', **metadata):
+    def __init__(self, origins: list, space: int, increment_number_field: str, family='I', **metadata):
 
         super(Queue, self).__init__()
 
@@ -11,8 +11,7 @@ class Queue(JSONLDBaseWithHydraContext):
         self.assets = []
 
         for index, origin in enumerate(origins):
-            # this should use Image
-            asset = Image(id=origin.rsplit('/', 1)[-1],
+            asset = Image(id=Image.get_image_id(origin),
                           space=space,
                           origin=origin,
                           tags=None,
@@ -30,18 +29,3 @@ class Queue(JSONLDBaseWithHydraContext):
         data = super(Queue, self).to_json_dict()
         self.add_if_not_none(data, 'member', list(map(lambda x: x.to_json_dict(), self.assets)))
         return data
-
-# {
-#     "@context": "http://www.w3.org/ns/hydra/context.jsonld",
-#     "@type": "Collection",
-#     "member": [
-#         {
-#             "id": "image-test-2",
-#             "space": 1,
-#             "origin": "http://tomcrane.github.io/scratch/img/IMG_4716.JPG",
-#             "maxUnauthorised": -1,
-#             "string1": "test 2",
-#             "family": "I"
-#         }
-#     ]
-# }

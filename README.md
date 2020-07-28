@@ -45,6 +45,12 @@ Create new space for customer. CustomerId taken from `settings.py`
 
 `python dlcs.py customer create_space --name my-space`
 
+### Ingest single image from remote origin
+
+Ingest a single image that is currently in a remote origin (currently supports http* origins only)
+
+`python dlcs.py ingest image --id image-from-cli --location https://images.io/my-image --s3 from-cli`
+
 ### Ingest images from folder
 
 Ingest a local folder full of images. `settings.DLCS_ORIGIN` property must be populated, with the name of an S3 bucket. All images will be uploaded to this bucket, then a batch will be created to ingest images from that location.
@@ -61,7 +67,7 @@ Optional/Default args:
 
 > Current limitations - assumes eu-west-1 region. Assumes use of AWS profile for uploading.
 
-`python dlcs.py ingest folder --dir /path/to/imgs/ --n2 99 --s1 string-value`
+`python dlcs.py ingest folder --directory /path/to/imgs/ --n2 99 --s1 string-value`
 
 ### Debug Settings
 
@@ -69,6 +75,9 @@ View current values in settings.py (API secret key masked)
 
 `python dlcs.py debug settings`
 
-## TODO
+## TODO/Limitations
 
 - Allow space/customer etc to be overriden in a per-command basis.
+- Bulk uploads to non-S3 location
+- Handle different AWS regions
+- Handle different methods of AWS auth

@@ -1,3 +1,5 @@
+import pprint
+
 import fire
 import settings
 from operations import Operations
@@ -22,22 +24,6 @@ class DlcsCommand(object):
         if not self.api.endswith("/"):
             self.api += "/"
 
-    # def ingest_image(self, image_id, image_location, **metadata):
-    #     if not image_location.startswith("http"):
-    #         print("Only for remote origins so far")
-    #         raise NotImplementedError
-    #     ops = Operations(self, metadata)
-    #     batch = ops.ingest_from_origin(image_id, image_location)
-    #     print(batch)
-    #     print()
-    #     print("done.")
-
-    # def ingest_folder(self, path_to_folder, increment_number_field="n1", **metadata):
-    #     print("Can't yet ingest a local folder")
-    #     raise NotImplementedError
-    #     # ops = Operations(self, metadata)
-    #     # ops.ingest_folder(path_to_folder, increment_number_field)
-
 
 class Debug(object):
 
@@ -49,12 +35,15 @@ class Debug(object):
         Print current settings object being used
         :return:
         """
-        print(f"api root: {self.dlcscommand.api}")
-        print(f"api key: {self.dlcscommand.key}")
-        print(f"api secret: {self.dlcscommand.secret[0:3]}****")
-        print(f"customer: {self.dlcscommand.customer}")
-        print(f"space: {self.dlcscommand.space}")
-        print(f"origin: {self.dlcscommand.origin}")
+        settings_dict = {
+            'api_root' : self.dlcscommand.api,
+            'api_key': self.dlcscommand.key,
+            'api_secret': f'{self.dlcscommand.secret[0:3]}****',
+            'customer': self.dlcscommand.customer,
+            'space': self.dlcscommand.space,
+            'origin': self.dlcscommand.origin,
+        }
+        pprint.pprint(settings_dict)
 
 
 class Ingest(object):
@@ -64,18 +53,32 @@ class Ingest(object):
         self.dlcscommand = dlcscommand
         self.ops = Operations(self.dlcscommand)
 
-    def image(self, image_id, image_location, metadata):
-        if not image_location.startswith("http"):
+    def image(self, image_id, location, **metadata):
+        """
+        Ingest a single image to DLCS, via queue
+        :param image_id: Id of image to use
+        :param location: Remote origin
+        :param metadata: kwargs specifying metadata
+        :return:
+        """
+        if not location.startswith("http"):
             print("Only for remote origins so far")
             raise NotImplementedError
 
-        batch = self.ops.ingest_from_origin(image_id, image_location, **metadata)
-        print(batch)
-        print()
-        print("done.")
+        batch = self.ops.ingest_from_origin(image_id, location, **metadata)
+        print(batch.toJSON())
 
-    def folder(self, dir, profile='Default', increment_number_field="n1", **metadata):
-        self.ops.ingest_folder(dir, increment_number_field, profile, **metadata)
+    def folder(self, directory, profile='Default', increment_number_field="n1", **metadata):
+        """
+        Ingest entire directory of images
+        :param directory:path to directory storing images
+        :param profile:AWS profile to use for uploading (default 'Default')
+        :param increment_number_field: metadata field to use for storing incremental number (default n1)
+        :param metadata: kwargs specifying metadata, used for every image
+        :return:
+        """
+        batch = self.ops.ingest_folder(directory, increment_number_field, profile, **metadata)
+        print(batch.toJSON())
 
 
 class Pipeline(object):
@@ -103,14 +106,16 @@ class Customer(object):
         :param display_name: 'friendly' name of customer
         :return:
         """
-        self.ops.create_customer(name, display_name)
+        customer = self.ops.create_customer(name, display_name)
+        pprint.pprint(customer)
 
     def create_api_key(self):
         """
         Creates api keys for customer specified in settings
         :return:
         """
-        self.ops.create_api_key()
+        key = self.ops.create_api_key()
+        pprint.pprint(key)
 
     def create_space(self, name):
         """
@@ -118,7 +123,8 @@ class Customer(object):
         :param name: name to use for space
         :return:
         """
-        self.ops.create_space(name)
+        space = self.ops.create_space(name)
+        pprint.pprint(space)
 
 
 if __name__ == '__main__':

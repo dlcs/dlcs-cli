@@ -1,3 +1,5 @@
+import pprint
+
 from botocore.exceptions import ClientError
 
 from client.batch import Batch
@@ -14,7 +16,7 @@ class Operations(object):
     def __init__(self, dlcscommand):
         self.dlcscommand = dlcscommand
 
-    def make_image(self, image_id, origin, metadata):
+    def make_image(self, image_id, origin, **metadata):
         image = Image(id=image_id,
                       space=self.dlcscommand.space,
                       origin=origin,
@@ -27,8 +29,8 @@ class Operations(object):
                       number_3=metadata.get("n3", None))
         return image
 
-    def ingest_from_origin(self, image_id, origin):
-        image = self.make_image(image_id, origin)
+    def ingest_from_origin(self, image_id, origin, **metadata):
+        image = self.make_image(image_id, origin, **metadata)
         coll = ImageCollection(images=[image])
         batch = self.register_collection(coll)
         return batch
@@ -38,7 +40,6 @@ class Operations(object):
         body = image_collection.to_json_dict()
         response = post(url, json=body, auth=self._get_auth())
         batch = Batch(response.json())
-
         return batch
 
     def ingest_folder(self, dir, increment_number_field, profile, **metadata):
@@ -62,7 +63,7 @@ class Operations(object):
                 uploaded.append(public_url)
                 print(f'uploaded: {public_url}..')
             except ClientError as e:
-                print(f'failed to upload {filename}')
+                print(f'failed to upload {filename}..')
 
         if not uploaded:
             print("Nothing uploaded. Nothing to do.")
@@ -72,9 +73,8 @@ class Operations(object):
         url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/queue'
         response = post(url, json=queue.to_json_dict(), auth=self._get_auth())
         response.raise_for_status()
-        print(f"Created queue")
-        print(response.status_code)
-        print(response.json())
+        batch = Batch(response.json())
+        return batch
 
     def create_customer(self, name: str, display_name: str):
         """
@@ -87,26 +87,20 @@ class Operations(object):
         url = f'{self.dlcscommand.api}customers'
         response = post(url, json=body, auth=self._get_auth())
         response.raise_for_status()
-        print(f"Created customer '{name}':")
-        print(response.status_code)
-        print(response.json())
+        return response.json()
 
     def create_api_key(self):
         url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/keys'
         response = post(url, json={}, auth=self._get_auth())
         response.raise_for_status()
-        print(f"Created api_keys for customer '{self.dlcscommand.customer}':")
-        print(response.status_code)
-        print(response.json())
+        return response.json()
 
     def create_space(self, name: str):
         body = {"@type": "Space", "name": name}
         url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/spaces'
         response = post(url, json=body, auth=self._get_auth())
         response.raise_for_status()
-        print(f"Created space for customer '{self.dlcscommand.customer}':")
-        print(response.status_code)
-        print(response.json())
+        return response.json()
 
     def _get_auth(self):
         return auth.HTTPBasicAuth(self.dlcscommand.key, self.dlcscommand.secret)

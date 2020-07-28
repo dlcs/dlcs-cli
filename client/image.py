@@ -112,4 +112,7 @@ class Image(JSONLDBase):
         self.add_if_not_none(data, 'family', self.family)
         return data
 
+    @staticmethod
+    def get_image_id(full_id):
+        return full_id.rsplit('/', 1)[-1]
 

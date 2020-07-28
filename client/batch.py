@@ -1,3 +1,5 @@
+import json
+
 from requests import get, auth
 import settings
 
@@ -19,7 +21,6 @@ class Batch:
         return json_name
 
     def __init__(self, batch_data=None, batch_id=None):
-
         self.count = 0
         self.completed = 0
         self.id = batch_id
@@ -28,6 +29,9 @@ class Batch:
         else:
             self.update()
 
+    def toJSON(self):
+        return json.dumps(self.__dict__, indent=2)
+
     def update(self):
         url = self.id
         a = auth.HTTPBasicAuth(settings.DLCS_API_KEY, settings.DLCS_API_SECRET)
@@ -35,7 +39,6 @@ class Batch:
         self.update_data(response.json())
 
     def update_data(self, batch_data):
-
         for element in batch_data:
             value = batch_data.get(element)
             setattr(self, self.get_attribute_name(element), value)

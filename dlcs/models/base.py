@@ -25,7 +25,9 @@ class DLCSJSONLDBase(object):
         else: 
             return self._dlcs.get_endpoint(self.endpoint)
 
-    def post(self, data): 
+    def post(self, data=None): 
+        if not data:
+            data = self.data
         if (url:=self.data.get('@id')): 
             return self._dlcs._post(url, json=data)
         else: 

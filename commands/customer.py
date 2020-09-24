@@ -4,6 +4,7 @@ from settings import DLCS_CUSTOMER_ID, DLCS_SPACE_ID
 from dlcs.models import (
         Collection, 
         Customer, 
+        Key, 
         CustomerQueue, 
         Space, 
         Batch
@@ -31,7 +32,7 @@ class CustomerCommands(BaseCommand):
 
     def get_customer(self, customer_id: int):
         customer = self._get_customer(customer_id)
-        pprint.pprint(customer.data)
+        return customer
 
     def create_customer(self, name: str, display_name: str):
         """
@@ -46,55 +47,17 @@ class CustomerCommands(BaseCommand):
                 }
         customer = Customer(dlcs=self._dlcs, **customer_kwargs)
         customer.update_from_response(customer.post())
-        return customer.data
+        return customer
 
-    def create_api_key(self):
-        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/keys'
-        response = post(url, json={}, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
+    def create_api_key(self, customer_id):
+        key = Key(dlcs=self._dlcs, customer_id=customer_id)
+        key.update_from_response(key.post())
+        return key.data
 
-    def create_space(self, name: str):
-        body = {"@type": "Space", "name": name}
-        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/spaces'
-        response = post(url, json=body, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-
-class Customefadsr(object):
-    """Operations related to customer"""
-
-    def __init__(self, dlcscommand):
-        self.dlcscommand = dlcscommand
-        self.ops = Operations(self.dlcscommand)
-
-    def create(self, name, display_name):
-        """
-        Create a new customer with specified name.
-        NOTE: Requires admin credentials
-        :param name: url-param name of customer
-        :param display_name: 'friendly' name of customer
-        :return:
-        """
-        customer = self.ops.create_customer(name, display_name)
-        pprint.pprint(customer)
-
-    def create_api_key(self):
-        """
-        Creates api keys for customer specified in settings
-        :return:
-        """
-        key = self.ops.create_api_key()
-        pprint.pprint(key)
-
-    def create_space(self, name):
-        """
-        Create space for customer specified in settings
-        :param name: name to use for space
-        :return:
-        """
-        space = self.ops.create_space(name)
-        pprint.pprint(space)
-
-
+    def create_space(self, customer_id: int, name: str):
+        space_kwargs = {'name': name}
+        space = Space(dlcs=self._dlcs, 
+                customer_id=customer_id, 
+                **space_kwargs)
+        space.update_from_response(space.post())
+        return space.data

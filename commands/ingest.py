@@ -1,20 +1,57 @@
-import pprint
+from .base import BaseCommand
+#from botocore.exceptions import ClientError
+#import boto3
 
-from botocore.exceptions import ClientError
+class IngestCommands(BaseCommand):
 
-from client.batch import Batch
-from client.image import Image, ImageCollection
-from client.queue import Queue
+    def ingest_from_origin(self, image_id, origin, **metadata): 
+        pass
 
-from requests import post, auth
-import boto3
-import os
+    def register_collection(self, image_collection): 
+        pass
 
+    def ingest_folder(self, path_to_dir, increment_number_fields, profile, **metadata): 
+        pass
 
-class Operations(object):
+class Ingest(object):
+    """Operations related to ingesting assets"""
 
     def __init__(self, dlcscommand):
         self.dlcscommand = dlcscommand
+        self.ops = Operations(self.dlcscommand)
+
+    def image(self, image_id, location, **metadata):
+        """
+        Ingest a single image to DLCS, via queue
+        :param image_id: Id of image to use
+        :param location: Remote origin
+        :param metadata: kwargs specifying metadata
+        :return:
+        """
+        if not location.startswith("http"):
+            print("Only for remote origins so far")
+            raise NotImplementedError
+
+        batch = self.ops.ingest_from_origin(image_id, location, **metadata)
+        print(batch.toJSON())
+
+    def folder(self, directory, profile='Default', increment_number_field="n1", **metadata):
+        """
+        Ingest entire directory of images
+        :param directory:path to directory storing images
+        :param profile:AWS profile to use for uploading (default 'Default')
+        :param increment_number_field: metadata field to use for storing incremental number (default n1)
+        :param metadata: kwargs specifying metadata, used for every image
+        :return:
+        """
+        batch = self.ops.ingest_folder(directory, increment_number_field, profile, **metadata)
+        print(batch.toJSON())
+
+    def _register_collection(self, image_collection):
+        image_collection = Collection.from_iiif3_manifest(manifest, space=DLCS_SPACE_ID)
+        queue = CustomerQueue(dlcs=self._dlcs, customer_id=DLCS_CUSTOMER_ID)
+        batch = queue.post_batch(image_collection)
+        return batch.data
 
     def make_image(self, image_id, origin, **metadata):
         image = Image(id=image_id,
@@ -77,31 +114,3 @@ class Operations(object):
         batch = Batch(response.json())
         return batch
 
-    def create_customer(self, name: str, display_name: str):
-        """
-        POST to api to create a new customer
-        :param name: path friendly name of customer
-        :param display_name: display name of customer
-        :return: Customer object, from json
-        """
-        body = {"name": name, "displayName": display_name}
-        url = f'{self.dlcscommand.api}customers'
-        response = post(url, json=body, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-    def create_api_key(self):
-        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/keys'
-        response = post(url, json={}, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-    def create_space(self, name: str):
-        body = {"@type": "Space", "name": name}
-        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/spaces'
-        response = post(url, json=body, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-    def _get_auth(self):
-        return auth.HTTPBasicAuth(self.dlcscommand.key, self.dlcscommand.secret)

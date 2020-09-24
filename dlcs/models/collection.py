@@ -9,7 +9,7 @@ class Collection(DLCSJSONLDBase):
         return [self._dlcs.map_to_registered_model(member) for member in self.data.get('member', [])] 
     
     @classmethod
-    def from_iiif3_manifest(cls, iiif3_manifest: dict, **kwargs): 
+    def from_iiif3_manifest(cls, iiif3_manifest: dict, dlcs=None, **kwargs): 
         images = []
         for canvas in iiif3_manifest.get('items', []): 
             for annotation_page in canvas.get('items', []): 
@@ -19,4 +19,4 @@ class Collection(DLCSJSONLDBase):
                                 iiif3_image_body = annotation.get('body'), 
                                 **kwargs
                             ))
-        return cls(**{'member': [image.data for image in images]}) 
+        return cls(dlcs=dlcs, **{'member': [image.data for image in images]}) 

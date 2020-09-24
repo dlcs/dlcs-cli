@@ -3,6 +3,9 @@ import aiohttp
 from .base import (
         BaseDLCS, 
         )
+
+import ..models as dlcs_models
+
 from ..models import (
         Customer, 
         Space, 

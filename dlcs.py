@@ -1,8 +1,7 @@
 import pprint
-
 import fire
 import settings
-from operations import Operations
+from ._operation import Operations
 
 
 class DlcsCommand(object):

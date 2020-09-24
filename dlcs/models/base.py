@@ -15,27 +15,27 @@ class DLCSJSONLDBase(object):
 
         self.data = {**self._initial_data, **kwargs}
 
-    async def get(self):  
-        if (url:=self.data.get('@id')): 
-            response = await self._dlcs._get(url)
-        else: 
-            response = await self._dlcs.get_endpoint(self.endpoint)
+    def update_from_response(self, response): 
         self.data = response
         return self
 
-    async def post(self, data): 
+    def get(self):  
         if (url:=self.data.get('@id')): 
-            response = await self._dlcs._post(url, json=data)
+            return self._dlcs._get(url)
         else: 
-            response = await self._dlcs.post_endpoint(self.endpoint, json=data)
-        self.data = response
+            return self._dlcs.get_endpoint(self.endpoint)
 
-    async def _get_stored_url(self, key:str) -> str:
-        response = {}
+    def post(self, data): 
+        if (url:=self.data.get('@id')): 
+            return self._dlcs._post(url, json=data)
+        else: 
+            return self._dlcs.post_endpoint(self.endpoint, json=data)
+
+    def _get_stored_url(self, key:str) -> str:
         if (url:=self.data.get(key)): 
-            response = await self._dlcs._get(url)
-            response = self._dlcs.map_to_registered_model(response) 
-        return response
+            return self._dlcs._get(url)
+        else: 
+            print(f'{key} not present in {self}')
 
     def to_json_dict(self):
         data = {}

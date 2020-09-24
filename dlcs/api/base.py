@@ -20,7 +20,7 @@ class BaseDLCS(object):
         self.session = self._get_session()
 
     def _get_session(self): 
-        pass
+        raise NotImplementedError
 
     def _close_session(self): 
         raise NotImplementedError

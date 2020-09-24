@@ -1,5 +1,10 @@
-from .space import Space
 from .batch import Batch
-from .queue import CustomerQueue
+from .collection import Collection 
+from .customer import (
+        Customer, 
+        CustomerStorage, 
+        Key, 
+        Space, 
+        CustomerQueue, 
+        )
 from .image import Image
-from .customer import Customer

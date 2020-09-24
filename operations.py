@@ -6,6 +6,8 @@ from client.batch import Batch
 from client.image import Image, ImageCollection
 from client.queue import Queue
 
+from dlcs.api import AIODLCS 
+
 from requests import post, auth
 import boto3
 import os
@@ -13,8 +15,8 @@ import os
 
 class Operations(object):
 
-    def __init__(self, dlcscommand):
-        self.dlcscommand = dlcscommand
+    def __init__(self, dlcs):
+        self.dlcs = dlcs
 
     def make_image(self, image_id, origin, **metadata):
         image = Image(id=image_id,
@@ -77,31 +79,3 @@ class Operations(object):
         batch = Batch(response.json())
         return batch
 
-    def create_customer(self, name: str, display_name: str):
-        """
-        POST to api to create a new customer
-        :param name: path friendly name of customer
-        :param display_name: display name of customer
-        :return: Customer object, from json
-        """
-        body = {"name": name, "displayName": display_name}
-        url = f'{self.dlcscommand.api}customers'
-        response = post(url, json=body, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-    def create_api_key(self):
-        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/keys'
-        response = post(url, json={}, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-    def create_space(self, name: str):
-        body = {"@type": "Space", "name": name}
-        url = f'{self.dlcscommand.api}customers/{self.dlcscommand.customer}/spaces'
-        response = post(url, json=body, auth=self._get_auth())
-        response.raise_for_status()
-        return response.json()
-
-    def _get_auth(self):
-        return auth.HTTPBasicAuth(self.dlcscommand.key, self.dlcscommand.secret)

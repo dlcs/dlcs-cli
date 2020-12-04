@@ -4,7 +4,7 @@ from .base import (
         BaseDLCS, 
         )
 
-from ..models import (
+from models import (
         Batch,
         Collection, 
         Customer, 

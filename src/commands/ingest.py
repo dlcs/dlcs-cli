@@ -1,6 +1,4 @@
 from .base import BaseCommand
-#from botocore.exceptions import ClientError
-#import boto3
 
 class IngestCommands(BaseCommand):
 

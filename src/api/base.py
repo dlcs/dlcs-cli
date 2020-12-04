@@ -1,4 +1,4 @@
-from ..models.base import (
+from models.base import (
         DLCSJSONLDBase, 
         )
 

@@ -4,9 +4,7 @@ from .base import (
         BaseDLCS, 
         )
 
-import ..models as dlcs_models
-
-from ..models import (
+from models import (
         Customer, 
         Space, 
         Collection, 

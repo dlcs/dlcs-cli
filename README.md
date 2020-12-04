@@ -8,20 +8,38 @@ You can do this kind of thing:
 
 ## Getting Started
 
-You need to specify a `settings.py` file containing default values in the root of the repository. Sample file shown below:
+You need to craete a `~/.dlcs-cli/credentials.json` file containing default values.
 
-```py
-DLCS_ENTRY = 'https://api.dlcs' # the route of the API to call (e.g. https://api.dlcs.io)
-DLCS_API_KEY = 'api-key' # username for basic auth
-DLCS_SECRET = 'my-super-secret' # password for basic auth
-DLCS_CUSTOMER_ID = 1 # customer to do operations on
-DLCS_SPACE = 1 # space to do operations on
-DLCS_ORIGIN = 'storage-origin' # bucket used to upload to (optional)
+```json
+{
+  "key": "your_api_key",
+  "secret": "your_secret",
+  "api_url": "https://api.dlcs",
+  "origin": "storage-origin",
+  "customer": 2,
+  "space": 7
+}
+```
+
+- `api_key`: Username for basic auth
+- `secret`: Password for basic auth
+- `space`: Customer space to do operations on
+- `api_url`: The route of the API to call (optional: defaults to 'api.dlcs.io')
+- `origin`: Bucket used to upload to (optional: defaults to 'storage-origin')
+
+### Installing
+
+You can install this as a Python module in "edit mode" locally from the parent folder by:
+
+```
+pip3 install -e dlcs-cli
 ```
 
 ## Commands 
 
-To make the CLI easier to manage commands are grouped, this allows commands to be in the format: `python dlcs.py <group> <command> <args>` 
+To make the CLI easier to manage commands are grouped, this allows commands to be in the format: 
+
+`dlcs-cli <group> <command> <args>` 
 
 Commands are listed below, unless otherwise stated, full output from DLCS is printed to stdout.
 
@@ -31,29 +49,29 @@ Create a new customer.
 
 > Needs Admin credentials
 
-`python dlcs.py customer create --name foo --display_name "Foo Bar"`
+`dlcs-cli customer create --name foo --display_name "Foo Bar"`
 
 ### Create API key
 
 Create a new API key for customer. CustomerId taken from `settings.py`.
 
-`python dlcs.py customer create_api_key`
+`dlcs-cli customer create_api_key`
 
 ### Create space
 
 Create new space for customer. CustomerId taken from `settings.py`
 
-`python dlcs.py customer create_space --name my-space`
+`dlcs-cli customer create_space --name my-space`
 
 ### Ingest single image from remote origin
 
 Ingest a single image that is currently in a remote origin (currently supports http* origins only)
 
-`python dlcs.py ingest image --id image-from-cli --location https://images.io/my-image --s3 from-cli`
+`dlcs-cli ingest image --id image-from-cli --location https://images.io/my-image --s3 from-cli`
 
 ### Ingest images from folder
 
-Ingest a local folder full of images. `settings.DLCS_ORIGIN` property must be populated, with the name of an S3 bucket. All images will be uploaded to this bucket, then a batch will be created to ingest images from that location.
+Ingest a local folder full of images. `origin` property must be populated, with the name of an S3 bucket. All images will be uploaded to this bucket, then a batch will be created to ingest images from that location.
 
 The ideal bucket to use is the DLCS 'origin bucket'. This is the bucket that the Portal will upload images to when uploaded via the UI. This is automatically configured as a 'optimised origin' so avoids the DLCS needing to make a copy.
 
@@ -67,13 +85,13 @@ Optional/Default args:
 
 > Current limitations - assumes eu-west-1 region. Assumes use of AWS profile for uploading.
 
-`python dlcs.py ingest folder --directory /path/to/imgs/ --n2 99 --s1 string-value`
+`dlcs-cli ingest folder --directory /path/to/imgs/ --n2 99 --s1 string-value`
 
 ### Debug Settings
 
 View current values in settings.py (API secret key masked)
 
-`python dlcs.py debug settings`
+`dlcs-cli debug settings`
 
 ## TODO/Limitations
 

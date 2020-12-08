@@ -4,7 +4,7 @@ from .base import (
         BaseDLCS, 
         )
 
-from ..models import (
+from models import (
         Batch,
         Collection, 
         Customer, 
@@ -28,7 +28,7 @@ class DLCS(BaseDLCS):
     def _get_session(self): 
         session = requests.Session()
         session.auth = requests.auth.HTTPBasicAuth(
-                self.key, self.secret
+                self.settings.key, self.settings.secret
                 )
         return session 
     

@@ -1,6 +1,6 @@
 # You need to make your own one of these, although it can be unfilled.
 settings.py
-
+*.egg-info
 .vscode
 *.sln
 *.pyproj

@@ -1,8 +1,9 @@
 import pprint
 import fire
-import settings
 
-from dlcs.api import DLCS
+from settings import load_settings
+
+from api import DLCS
 from commands import (
         IngestCommands, 
         CustomerCommands
@@ -28,18 +29,30 @@ class Debug(object):
         }
         pprint.pprint(settings_dict)
 
+
+
 class Pipeline(object):
     """Pipeline used by Python Fire to group all request"""
 
     def __init__(self):
+        settings = load_settings()
+
         dlcs = DLCS(
-                api_url=settings.DLCS_API_URL, 
-                key=settings.DLCS_KEY, 
-                secret=settings.DLCS_SECRET, 
-                )
-        self.customer = CustomerCommands(dlcs)
-        self.ingest = IngestCommands(dlcs)
-        self.debug = Debug(dlcs)
+            settings=settings,
+        )
+
+        self.customer = CustomerCommands(
+            dlcs=dlcs,
+            default_space_id=settings.space,
+            default_customer_id=settings.customer
+        )
+
+        self.ingest = IngestCommands(dlcs=dlcs)
+        self.debug = Debug(dlcs=dlcs)
+
+
+def cli():
+    fire.Fire(Pipeline)
 
 if __name__ == '__main__':
-    fire.Fire(Pipeline)
+    cli()

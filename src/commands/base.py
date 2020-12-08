@@ -1,4 +1,4 @@
-from dlcs.api import DLCS 
+from api import DLCS
 
 class BaseCommand(object):
     def __init__(self, dlcs: DLCS):

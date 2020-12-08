@@ -1,11 +1,23 @@
+from api import DLCS
+
 from .base import BaseCommand
-#from botocore.exceptions import ClientError
-#import boto3
+
+from models import (
+    Image,
+)
 
 class IngestCommands(BaseCommand):
+    def ingest_from_origin(self, image_id, origin, **metadata):
+        image_kwargs = {
+            'id': image_id,
+            'space': self._dlcs.settings.space,
+            'origin': origin
+        }
 
-    def ingest_from_origin(self, image_id, origin, **metadata): 
-        pass
+        image = Image(dlcs=self._dlcs, image_id=image_id, **image_kwargs)
+        # import pprint
+        # pprint(image.as_registered_iiif3_image_body())
+        return image
 
     def register_collection(self, image_collection): 
         pass

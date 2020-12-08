@@ -1,9 +1,23 @@
+from api import DLCS
+
 from .base import BaseCommand
 
-class IngestCommands(BaseCommand):
+from models import (
+    Image,
+)
 
-    def ingest_from_origin(self, image_id, origin, **metadata): 
-        pass
+class IngestCommands(BaseCommand):
+    def ingest_from_origin(self, image_id, origin, **metadata):
+        image_kwargs = {
+            'id': image_id,
+            'space': self._dlcs.settings.space,
+            'origin': origin
+        }
+
+        image = Image(dlcs=self._dlcs, image_id=image_id, **image_kwargs)
+        # import pprint
+        # pprint(image.as_registered_iiif3_image_body())
+        return image
 
     def register_collection(self, image_collection): 
         pass

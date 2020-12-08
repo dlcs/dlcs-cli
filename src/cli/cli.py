@@ -47,8 +47,8 @@ class Pipeline(object):
             default_customer_id=settings.customer
         )
 
-        self.ingest = IngestCommands(dlcs)
-        self.debug = Debug(dlcs)
+        self.ingest = IngestCommands(dlcs=dlcs)
+        self.debug = Debug(dlcs=dlcs)
 
 
 def cli():

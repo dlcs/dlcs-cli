@@ -3,8 +3,16 @@ from .base import (
         )
 
 class Image(DLCSJSONLDBase):
-    _type = 'vocab:Image' 
-    
+    _type = 'vocab:Image'
+
+    def __init__(self, dlcs=None, image_id=None, **kwargs):
+        self.image_id = image_id
+        if self.image_id:
+            self.customer_id = dlcs.settings.customer
+            self.space_id = dlcs.settings.space
+            self.endpoint = f'customers/{self.customer_id}/spaces/{self.space_id}/images/{self.image_id}'
+        super().__init__(dlcs=dlcs, **kwargs)
+
     @classmethod
     def from_unregistered_iiif3_image_body(cls, space, iiif3_image_body):
         data = {
@@ -24,6 +32,7 @@ class Image(DLCSJSONLDBase):
         image_id = dlcs_image_id_parts[-1]
         space_id = dlcs_image_id_parts[-3]
         customer_id = dlcs_image_id_parts[-5]
+
         iiif_image_id = f'https://dlc.services/iiif-img/{customer_id}/{space_id}/{image_id}'
         return {
             "id": f'{iiif_image_id}/full/!1024,1024/0/default.jpg', 

@@ -1,5 +1,3 @@
-import pprint
-
 from api import DLCS
 
 from .base import BaseCommand

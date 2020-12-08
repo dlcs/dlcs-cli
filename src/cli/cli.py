@@ -1,7 +1,7 @@
 import pprint
 import fire
 
-from .settings import load_settings
+from settings import load_settings
 
 from api import DLCS
 from commands import (
@@ -38,9 +38,7 @@ class Pipeline(object):
         settings = load_settings()
 
         dlcs = DLCS(
-            api_url=settings.api_url,
-            key=settings.key,
-            secret=settings.secret,
+            settings=settings,
         )
 
         self.customer = CustomerCommands(

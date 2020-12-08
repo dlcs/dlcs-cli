@@ -8,7 +8,7 @@ You can do this kind of thing:
 
 ## Getting Started
 
-You need to craete a `~/.dlcs-cli/credentials.json` file containing default values.
+You need to create a `~/.dlcs-cli/credentials.json` file containing default values.
 
 ```json
 {

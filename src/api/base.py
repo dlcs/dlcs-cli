@@ -2,21 +2,15 @@ from models.base import (
         DLCSJSONLDBase, 
         )
 
-class BaseDLCS(object): 
-    api_url = ''
-    key = ''
-    secret = ''
+from settings import Settings
+
+class BaseDLCS(object):
     _models = {}
 
     def __init__(self, 
-            api_url: str='', 
-            key: str='', 
-            secret: str='', 
+            settings: Settings,
             ):
-        api_url = api_url.rstrip('/')
-        self.api_url = api_url
-        self.key = key
-        self.secret = secret
+        self.settings = settings
         self.session = self._get_session()
 
     def _get_session(self): 
@@ -32,7 +26,7 @@ class BaseDLCS(object):
         raise NotImplementedError
     
     def format_endpoint_url(self, endpoint): 
-        return f'{self.api_url}{endpoint}'
+        return f'{self.settings.api_url}{endpoint}'
     
     def get_endpoint(self, endpoint):
         return self._get(
